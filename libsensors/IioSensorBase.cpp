@@ -19,7 +19,11 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <cutils/log.h>
+#include <malloc.h>
 #include <pthread.h>
+#include <string.h>
+#include <stdlib.h>
+
 
 #include "IioSensorBase.h"
 

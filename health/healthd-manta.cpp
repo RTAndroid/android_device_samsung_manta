@@ -17,7 +17,7 @@
 #define LOG_TAG "healthd-manta"
 #include <errno.h>
 #include <fcntl.h>
-#include <healthd.h>
+#include <healthd/healthd.h>
 #include <stdlib.h>
 #include <time.h>
 #include <unistd.h>
@@ -346,4 +346,24 @@ void healthd_board_init(struct healthd_config *config)
     }
 
     config->energyCounter = manta_energy_counter;
+}
+
+void healthd_board_mode_charger_draw_battery(struct android::BatteryProperties*)
+{
+
+}
+
+void healthd_board_mode_charger_battery_update(struct android::BatteryProperties*)
+{
+
+}
+
+void healthd_board_mode_charger_set_backlight(bool)
+{
+
+}
+
+void healthd_board_mode_charger_init()
+{
+
 }

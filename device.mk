@@ -34,20 +34,6 @@ PRODUCT_COPY_FILES += \
     device/samsung/manta/manta-keypad.kl:system/usr/keylayout/manta-keypad.kl \
     device/samsung/manta/manta-keypad.kcm:system/usr/keychars/manta-keypad.kcm
 
-
-# Init files for booting smdk5250 with a manta image
-PRODUCT_COPY_FILES += \
-    device/samsung/manta/init.smdk5250.rc:root/init.smdk5250.rc \
-    device/samsung/manta/init.smdk5250.usb.rc:root/init.smdk5250.usb.rc \
-    device/samsung/manta/fstab.smdk5250:root/fstab.smdk5250 \
-    device/samsung/manta/ueventd.smdk5250.rc:root/ueventd.smdk5250.rc
-
-# Input device files for smdk5250
-PRODUCT_COPY_FILES += \
-    device/samsung/manta/egalax_i2c.idc:system/usr/idc/egalax_i2c.idc \
-    device/samsung/manta/smdk5250-keypad.kl:system/usr/keylayout/smdk5250-keypad.kl \
-    device/samsung/manta/smdk5250-keypad.kcm:system/usr/keychars/smdk5250-keypad.kcm
-
 PRODUCT_COPY_FILES += \
     frameworks/native/data/etc/tablet_core_hardware.xml:system/etc/permissions/tablet_core_hardware.xml \
     frameworks/native/data/etc/android.hardware.touchscreen.multitouch.jazzhand.xml:system/etc/permissions/android.hardware.touchscreen.multitouch.jazzhand.xml \
@@ -58,8 +44,6 @@ PRODUCT_COPY_FILES += \
     frameworks/av/media/libstagefright/data/media_codecs_google_video.xml:system/etc/media_codecs_google_video.xml \
     device/samsung/manta/media_codecs.xml:system/etc/media_codecs.xml \
     device/samsung/manta/media_profiles.xml:system/etc/media_profiles.xml \
-    frameworks/native/data/etc/android.hardware.camera.flash-autofocus.xml:system/etc/permissions/android.hardware.camera.flash-autofocus.xml \
-    frameworks/native/data/etc/android.hardware.camera.front.xml:system/etc/permissions/android.hardware.camera.front.xml \
     frameworks/native/data/etc/android.hardware.usb.accessory.xml:system/etc/permissions/android.hardware.usb.accessory.xml \
     frameworks/native/data/etc/android.hardware.usb.host.xml:system/etc/permissions/android.hardware.usb.host.xml \
     frameworks/native/data/etc/android.hardware.location.gps.xml:system/etc/permissions/android.hardware.location.gps.xml \
@@ -69,7 +53,7 @@ PRODUCT_COPY_FILES += \
     frameworks/native/data/etc/android.hardware.sensor.gyroscope.xml:system/etc/permissions/android.hardware.sensor.gyroscope.xml \
     frameworks/native/data/etc/android.hardware.sensor.light.xml:system/etc/permissions/android.hardware.sensor.light.xml \
     frameworks/native/data/etc/android.hardware.audio.low_latency.xml:system/etc/permissions/android.hardware.audio.low_latency.xml \
-    frameworks/native/data/etc/android.hardware.bluetooth_le.xml:system/etc/permissions/android.hardware.bluetooth_le.xml
+    frameworks/native/data/etc/android.hardware.bluetooth_le.xml:system/etc/permissions/android.hardware.bluetooth_le.xml \
     frameworks/native/data/etc/android.hardware.ethernet.xml:system/etc/permissions/android.hardware.ethernet.xml
 
 PRODUCT_COPY_FILES += \
@@ -86,7 +70,6 @@ PRODUCT_COPY_FILES += \
 PRODUCT_PACKAGES := \
     libwpa_client \
     hostapd \
-    dhcpcd.conf \
     wpa_supplicant \
     wpa_supplicant.conf
 
@@ -109,9 +92,6 @@ PRODUCT_PACKAGES += \
     Tag \
     com.android.nfc_extras
 
-# Torch
-PRODUCT_PACKAGES += Torch
-
 # NFCEE access control
 ifeq ($(TARGET_BUILD_VARIANT),user)
     NFCEE_ACCESS_PATH := device/samsung/manta/nfc/nfcee_access.xml
@@ -129,8 +109,17 @@ PRODUCT_PACKAGES += \
     lights.manta \
     sensors.manta
 
-PRODUCT_AAPT_CONFIG := xlarge hdpi xhdpi
+# We need to build the GPS interposition library for the GPS to work, also M removes
+# libstlport, but some of our binary-only prebuilts need it, so we'll add it back in
+# in source and here
+PRODUCT_PACKAGES += \
+    libdmitry \
+    libstlport
+
+PRODUCT_AAPT_CONFIG := xlarge
 PRODUCT_AAPT_PREF_CONFIG := xhdpi
+# A list of dpis to select prebuilt apk, in precedence order.
+PRODUCT_AAPT_PREBUILT_DPI := hdpi mdpi
 
 PRODUCT_CHARACTERISTICS := tablet,nosdcard
 
@@ -143,8 +132,6 @@ PRODUCT_PACKAGES += \
 
 PRODUCT_PACKAGES += \
     libion
-
-PRODUCT_TAGS += dalvik.gc.type-precise
 
 PRODUCT_PACKAGES += \
     librs_jni \
@@ -159,9 +146,6 @@ PRODUCT_PACKAGES += \
 
 PRODUCT_PACKAGES += \
     power.manta
-
-PRODUCT_PACKAGES += \
-    camera.exynos5
 
 # Filesystem management tools
 PRODUCT_PACKAGES += \
@@ -185,6 +169,10 @@ PRODUCT_PROPERTY_OVERRIDES := \
     ro.hwui.disable_scissor_opt=true \
     af.fast_track_multiplier=1
 
+PRODUCT_PROPERTY_OVERRIDES += \
+    dalvik.vm.dex2oat-filter=speed \
+    dalvik.vm.dex2oat-swap=false
+
 # setup dalvik vm configs.
 $(call inherit-product, frameworks/native/build/tablet-10in-xhdpi-2048-dalvik-heap.mk)
 
@@ -200,6 +188,10 @@ PRODUCT_DEFAULT_PROPERTY_OVERRIDES += \
 # for off charging mode
 PRODUCT_PACKAGES += \
     charger_res_images
+
+# Gello
+PRODUCT_PACKAGES += \
+    Gello
 
 $(call inherit-product-if-exists, hardware/samsung_slsi/exynos5/exynos5.mk)
 $(call inherit-product-if-exists, vendor/samsung_slsi/exynos5/exynos5-vendor.mk)
